@@ -1942,11 +1942,12 @@ if IntroEnabled then
 
     task.spawn(function()
         local steps = {
-            {percent = 15, text = "Loading core modules...", delay = 0.3},
-            {percent = 35, text = "Loading theme system...", delay = 0.35},
-            {percent = 55, text = "Checking premium status...", delay = 0.4},
-            {percent = 75, text = "Configuring interface...", delay = 0.35},
-            {percent = 92, text = "Loading configurations...", delay = 0.3},
+            {percent = 0, text = "Bypassing The Anti Cheat", delay = 0.2},
+            {percent = 15, text = "Loading Core Modules...", delay = 0.3},
+            {percent = 35, text = "Loading Theme System...", delay = 0.35},
+            {percent = 55, text = "Loading Visuals", delay = 0.4},
+            {percent = 75, text = "Configuring Interface...", delay = 0.35},
+            {percent = 92, text = "Loading configs...", delay = 0.1},
             {percent = 100, text = "Ready!", delay = 0.25}
         }
 
