@@ -28,47 +28,99 @@ local Tab = Window:MakeTab({
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
 local tpConnection = nil
+local spectateConnection = nil
+local cameraHook = nil
+local spectateTargetName = ""
+
+local function getTargetPlayer()
+    if spectateTargetName == "" or spectateTargetName == "me" then 
+        return nil 
+    end
+    for _, player in ipairs(Players:GetPlayers()) do
+        if string.lower(string.sub(player.Name, 1, #spectateTargetName)) == spectateTargetName or string.lower(string.sub(player.DisplayName, 1, #spectateTargetName)) == spectateTargetName then
+            return player
+        end
+    end
+    return nil
+end
 
 Tab:AddTextbox({
   IsMobile = false,
   IsPC = false,
   PremiumOnly = false,
   HidePremium = false,
-  Name = "Spectate Player",
-  Desc = "Enter a player's name to spectate",
+  Name = "Spectate Target",
+  Desc = "Type a player's name here first",
   Default = "",
-  TextDisappear = true,
-  Flag = "SpectateTextbox",
+  TextDisappear = false,
+  Flag = "SpectateTargetName",
   Callback = function(Value)
-    local targetName = string.lower(Value)
-    local Camera = Workspace.CurrentCamera
-    
-    if targetName == "" or targetName == "me" then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            Camera.CameraSubject = LocalPlayer.Character.Humanoid
-        end
-        return
-    end
-
-    local foundPlayer = nil
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if string.lower(string.sub(player.Name, 1, #targetName)) == targetName or string.lower(string.sub(player.DisplayName, 1, #targetName)) == targetName then
-            foundPlayer = player
-            break
-        end
-    end
-
-    if foundPlayer then
-        if foundPlayer.Character and foundPlayer.Character:FindFirstChild("Humanoid") then
-            Camera.CameraSubject = foundPlayer.Character.Humanoid
-        end
-    end
+    spectateTargetName = string.lower(Value)
   end    
+})
+
+Tab:AddToggle({
+   IsMobile = false,
+   IsPC = false,
+   PremiumOnly = false,
+   HidePremium = false,
+   Name = "Toggle Spectate",
+   Desc = "Turn on to force lock camera onto the target",
+   Default = false,
+   Flag = "SpectateToggleLoop",
+   Callback = function(Value)
+        if spectateConnection then spectateConnection:Disconnect() spectateConnection = nil end
+        if cameraHook then cameraHook:Disconnect() cameraHook = nil end
+        
+        if Value then
+            local function forceCamera()
+                local Camera = Workspace.CurrentCamera
+                if not Camera then return end
+                
+                local targetPlayer = getTargetPlayer()
+                if targetPlayer and targetPlayer.Character then
+                    local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        Camera.CameraType = Enum.CameraType.Custom
+                        if Camera.CameraSubject ~= humanoid then
+                            Camera.CameraSubject = humanoid
+                        end
+                        return
+                    end
+                end
+                
+                if LocalPlayer.Character then
+                    local myHumanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    if myHumanoid and Camera.CameraSubject ~= myHumanoid then
+                        Camera.CameraSubject = myHumanoid
+                    end
+                end
+            end
+
+            spectateConnection = RunService.RenderStepped:Connect(forceCamera)
+            
+            local currentCamera = Workspace.CurrentCamera
+            if currentCamera then
+                cameraHook = currentCamera:GetPropertyChangedSignal("CameraSubject"):Connect(forceCamera)
+            end
+        else
+            local Camera = Workspace.CurrentCamera
+            if Camera then
+                Camera.CameraType = Enum.CameraType.Custom
+                if LocalPlayer.Character then
+                    local myHumanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    if myHumanoid then
+                        Camera.CameraSubject = myHumanoid
+                    end
+                end
+            end
+        end
+   end    
 })
 
 Tab:AddToggle({
