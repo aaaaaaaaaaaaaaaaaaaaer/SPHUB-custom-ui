@@ -66,3 +66,38 @@ Tab:AddTextbox({
     end
   end    
 })
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local tpConnection = nil
+
+Tab:AddToggle({
+   IsMobile = false,
+   IsPC = false,
+   PremiumOnly = false,
+   HidePremium = false,
+   Name = "Mouse TP",
+   Desc = "Press "R" to tp to where you put your cursor",
+   Default = false,
+   Flag = "MouseTPSave",
+   Callback = function(Value)
+        if tpConnection then
+            tpConnection:Disconnect()
+            tpConnection = nil
+        end
+        
+        if Value then
+            tpConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                if gameProcessed then return end
+                if input.KeyCode == Enum.KeyCode.R then
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
+                    end
+                end
+            end)
+        end
+   end    
+})
