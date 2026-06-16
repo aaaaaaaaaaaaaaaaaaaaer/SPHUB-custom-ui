@@ -27,7 +27,11 @@ local Tab = Window:MakeTab({
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local tpConnection = nil
 
 Tab:AddTextbox({
   IsMobile = false,
@@ -67,20 +71,13 @@ Tab:AddTextbox({
   end    
 })
 
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-
-local tpConnection = nil
-
 Tab:AddToggle({
    IsMobile = false,
    IsPC = false,
    PremiumOnly = false,
    HidePremium = false,
    Name = "Mouse TP",
-   Desc = "Press "R" to tp to where you put your cursor",
+   Desc = "Press 'R' to tp to where you put your cursor",
    Default = false,
    Flag = "MouseTPSave",
    Callback = function(Value)
