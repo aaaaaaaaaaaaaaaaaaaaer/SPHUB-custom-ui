@@ -1,0 +1,68 @@
+local splib = loadstring(game:HttpGet("https://raw.githubusercontent.com/as6cd0/SP_Hub/refs/heads/main/splibv2"))()
+
+local Window = splib:MakeWindow({
+    Name = "SP HUB | The Strongest Battle Grounds",
+    SubTitle = "by 5y5wt",
+    Setting = true,
+    Intro = true,
+    IntroText = "SP Hub Loading",
+    IntroIcon = "rbxassetid://83114982417764",
+    IntroSpeed = 1,
+    Toggle = true,
+    IsPremium = false,
+    Icon = "rbxassetid://83114982417764",
+    RainbowMainFrame = false,
+    RainbowTitle = false,
+    RainbowSubTitle = false,
+    ToggleIcon = "rbxassetid://83114982417764",
+    CloseCallback = true
+})
+
+local Tab = Window:MakeTab({
+    IsMobile = false,
+    IsPC = false,
+    Name = "Blatant",
+    Icon = "rbxassetid://4483345998"
+})
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+
+Tab:AddTextbox({
+  IsMobile = false,
+  IsPC = false,
+  PremiumOnly = false,
+  HidePremium = false,
+  Name = "Spectate Player",
+  Desc = "Enter a player's name to spectate",
+  Default = "",
+  TextDisappear = true,
+  Flag = "SpectateTextbox",
+  Callback = function(Value)
+    local targetName = string.lower(Value)
+    local Camera = Workspace.CurrentCamera
+    
+    if targetName == "" or targetName == "me" then
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            Camera.CameraSubject = LocalPlayer.Character.Humanoid
+        end
+        return
+    end
+
+    local foundPlayer = nil
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if string.lower(string.sub(player.Name, 1, #targetName)) == targetName or string.lower(string.sub(player.DisplayName, 1, #targetName)) == targetName then
+            foundPlayer = player
+            break
+        end
+    end
+
+    if foundPlayer then
+        if foundPlayer.Character and foundPlayer.Character:FindFirstChild("Humanoid") then
+            Camera.CameraSubject = foundPlayer.Character.Humanoid
+        end
+    end
+  end    
+})
